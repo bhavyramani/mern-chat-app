@@ -19,6 +19,10 @@ import axios from 'axios';
 import { Spinner } from '@chakra-ui/react';
 import '../styles.css'
 import ScrollChat from './ScrollChat';
+import io from 'socket.io-client';
+const ENDPOINT = 'http://localhost:5000';
+let socket = null;
+let selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const { user, selectedChat, setSelectedChat } = ChatState();
@@ -31,6 +35,15 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const [messageLoading, setMessageLoading] = useState(false);
+    const [socketConnected, setSocketConnected] = useState(false);
+
+    useEffect(() => {
+        if (socket === null) {
+            socket = io(ENDPOINT);
+            socket.emit("setup", user);
+            socket.on('connection', () => setSocketConnected(true));
+        }
+    }, []);
 
     const handleSearch = async (query) => {
         setSearch(query);
@@ -218,6 +231,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                     content: newMessage,
                     chatId: selectedChat._id
                 }, config);
+                socket.emit("new message", data);
                 setMessages([...messages, data]);
             } catch (error) {
                 toast.error("Error Occured", {
@@ -232,10 +246,10 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     };
 
-    const fetchMessages = async ()=>{
-        if(!selectedChat)
+    const fetchMessages = async () => {
+        if (!selectedChat)
             return;
-        try{
+        try {
             const config = {
                 headers: {
                     "Content-type": "application/json",
@@ -244,9 +258,10 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
             };
             setMessageLoading(true);
 
-            const {data} = await axios.get(`/api/message/${selectedChat._id}`, config);
+            const { data } = await axios.get(`/api/message/${selectedChat._id}`, config);
             setMessages(data);
-        }catch (error) {
+            socket.emit('join chat', selectedChat._id);
+        } catch (error) {
             toast.error("Error Occured", {
                 position: "top-right",
                 autoClose: 5000,
@@ -255,7 +270,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                 pauseOnHover: true,
                 draggable: true,
             });
-        }finally{
+        } finally {
             setMessageLoading(false);
         }
     }
@@ -264,9 +279,22 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         setNewMessage(e.target.value);
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchMessages();
+        selectedChatCompare = selectedChat;
     }, [selectedChat]);
+
+
+    useEffect(() => {
+        socket.on('message received', (newMessageRecived) => {
+            if (!selectedChatCompare || selectedChatCompare._id !== newMessageRecived.chat._id) {
+
+            } else {
+                setMessages([...messages, newMessageRecived]);
+            }
+
+        });
+    });
     return (
         <Box w={'100%'} h={'100%'}>
             {
@@ -402,7 +430,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                     />
                                     :
                                     <div className='messages'>
-                                        <ScrollChat messages={messages}/>
+                                        <ScrollChat messages={messages} />
                                     </div>
                             }
                             <FormControl

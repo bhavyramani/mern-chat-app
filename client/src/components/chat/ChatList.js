@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { getSender } from '../../config/chatLogics';
-
+import GroupChatPopup from './GroupChatPopup';
 const ChatList = () => {
   const [loggedUser, setLoggedUser] = useState();
 
@@ -57,13 +57,16 @@ const ChatList = () => {
       >
 
         My Chats
-        <Button
-          display="flex"
-          fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-          size={'sm'}
-        >
-          New Group Chat +
-        </Button>
+        <GroupChatPopup>
+
+          <Button
+            display="flex"
+            fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+            size={'sm'}
+          >
+            New Group Chat +
+          </Button>
+        </GroupChatPopup>
       </Box>
       <Box
         display={'flex'}
@@ -76,14 +79,14 @@ const ChatList = () => {
       >
 
         {chats ? (
-          <Stack overflowY="scroll">
+          <Stack px={4} overflowY="scroll">
             {chats.map((chat) => (
               <Box
                 onClick={() => setSelectedChat(chat)}
                 cursor="pointer"
                 bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
                 color={selectedChat === chat ? "white" : "black"}
-                px={'10px'}
+                px={'15px'}
                 py={'7px'}
                 display={'flex'}
                 justifyContent={'left'}

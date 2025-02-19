@@ -58,7 +58,6 @@ const authUser = errorHandler(async (req, res) => {
 
 const allUsers = errorHandler(async (req, res) => {
     const query = req.query.search;
-
     if (!query) {
         res.status(400);
         throw new Error('Please provide search query');

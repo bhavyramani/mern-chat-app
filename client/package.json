@@ -5,7 +5,10 @@
   "proxy": "http://localhost:5000",
   "dependencies": {
     "@chakra-ui/form-control": "^2.2.0",
+    "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/input": "^2.1.2",
+    "@chakra-ui/menu": "^2.2.1",
+    "@chakra-ui/modal": "^2.3.1",
     "@chakra-ui/react": "^3.8.0",
     "@chakra-ui/toast": "^7.0.2",
     "@emotion/react": "^11.14.0",
@@ -17,7 +20,7 @@
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-icons": "^5.4.0",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^5.3.4",
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.3",
@@ -46,5 +49,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-router-dom": "^5.3.3"
   }
 }

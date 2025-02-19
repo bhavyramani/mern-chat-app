@@ -229,7 +229,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                         {selectedChat.chatName.toUpperCase()}
                                     </Box>
                             }
-                            <DrawerRoot open={open} placement={'end'} onOpenChange={(e) => setOpen(e.open)}>
+                            {selectedChat.groupChat ? <DrawerRoot open={open} placement={'end'} onOpenChange={(e) => setOpen(e.open)}>
                                 <DrawerTrigger asChild>
                                     <Button onClick={() => setOpen(true)}>Settings</Button>
                                 </DrawerTrigger>
@@ -307,7 +307,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                         <Button colorScheme="red">Close</Button>
                                     </DrawerCloseTrigger>
                                 </DrawerContent>
-                            </DrawerRoot>
+                            </DrawerRoot> : ""}
 
                         </Text>
                         <Box

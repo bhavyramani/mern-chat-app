@@ -63,7 +63,6 @@ const fetchChats = errorHandler(async (req, res) => {
 });
 
 const createGroupChat = errorHandler(async (req, res) => {
-    console.log("Creating Group Chat");
     if (!req.body.users || !req.body.name) {
         return res.status(400).send({ message: "Please Fill all the feilds" });
     }

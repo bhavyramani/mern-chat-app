@@ -38,7 +38,6 @@ const GroupChatPopup = ({ children }) => {
             });
             return;
         }
-        console.log(selectedUsers);
         setSelectedUsers([...selectedUsers, userToAdd]);
     };
 

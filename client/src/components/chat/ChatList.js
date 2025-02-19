@@ -5,9 +5,11 @@ import axios from 'axios';
 import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { getSender } from '../../config/chatLogics';
 import GroupChatPopup from './GroupChatPopup';
+import { useHistory } from 'react-router-dom';
+
 const ChatList = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
-
+  const history = useHistory();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
   const fetchChats = async () => {
     try {
@@ -27,6 +29,8 @@ const ChatList = ({ fetchAgain }) => {
         pauseOnHover: true,
         draggable: true,
       });
+      localStorage.removeItem('userInfo');
+      history.push('/');
     }
   };
   useEffect(() => {
@@ -89,7 +93,8 @@ const ChatList = ({ fetchAgain }) => {
                 px={'15px'}
                 py={'7px'}
                 display={'flex'}
-                justifyContent={'left'}
+                flexDir={'column'}
+                alignItems={'start'}
                 borderRadius="lg"
                 key={chat._id}
               >

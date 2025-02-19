@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ChatState } from '../../context/ChatProvider'
 import { Box, Button, DrawerFooter, Input, Text } from '@chakra-ui/react';
 import { getSender } from '../../config/chatLogics';
@@ -17,6 +17,8 @@ import { FormControl } from '@chakra-ui/form-control';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Spinner } from '@chakra-ui/react';
+import '../styles.css'
+import ScrollChat from './ScrollChat';
 
 const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const { user, selectedChat, setSelectedChat } = ChatState();
@@ -26,6 +28,9 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const [searchResult, setSearchResult] = useState([]);
     const [renameloading, setRenameLoading] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState("");
+    const [messageLoading, setMessageLoading] = useState(false);
 
     const handleSearch = async (query) => {
         setSearch(query);
@@ -182,7 +187,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
 
             user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
             setfetchAgain(!fetchAgain);
-            // fetchMessages();
+            fetchMessages();
             setLoading(false);
         } catch (error) {
             toast.error("Error Occured", {
@@ -198,6 +203,70 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         setGroupChatName("");
     };
 
+    const sendMessage = async (e) => {
+        if (e.key === 'Enter' && newMessage) {
+            try {
+                const config = {
+                    headers: {
+                        "Content-type": "application/json",
+                        Authorization: `Bearer ${user.token}`
+                    }
+                };
+
+                setNewMessage("");
+                const { data } = await axios.post('/api/message', {
+                    content: newMessage,
+                    chatId: selectedChat._id
+                }, config);
+                setMessages([...messages, data]);
+            } catch (error) {
+                toast.error("Error Occured", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
+            }
+        }
+    };
+
+    const fetchMessages = async ()=>{
+        if(!selectedChat)
+            return;
+        try{
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${user.token}`
+                }
+            };
+            setMessageLoading(true);
+
+            const {data} = await axios.get(`/api/message/${selectedChat._id}`, config);
+            setMessages(data);
+        }catch (error) {
+            toast.error("Error Occured", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+        }finally{
+            setMessageLoading(false);
+        }
+    }
+
+    const handleTyping = (e) => {
+        setNewMessage(e.target.value);
+    };
+
+    useEffect(()=>{
+        fetchMessages();
+    }, [selectedChat]);
     return (
         <Box w={'100%'} h={'100%'}>
             {
@@ -315,12 +384,40 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                             flexDir="column"
                             justifyContent="flex-end"
                             p={3}
-                            bg="gray.500"
+                            bg="gray.600"
                             w="100%"
                             h="70vh"
                             borderRadius="lg"
                             overflowY="hidden"
                         >
+                            {/* Main Chat Content */}
+                            {
+                                messageLoading ?
+                                    <Spinner
+                                        size={'xl'}
+                                        w={20}
+                                        h={20}
+                                        alignSelf={'center'}
+                                        margin={'auto'}
+                                    />
+                                    :
+                                    <div className='messages'>
+                                        <ScrollChat messages={messages}/>
+                                    </div>
+                            }
+                            <FormControl
+                                onKeyDown={sendMessage}
+                                isRequired
+                                mt={3}
+                            >
+                                <Input
+                                    variant={'filled'}
+                                    bg={'gray.300'}
+                                    color={'gray.900'}
+                                    onChange={handleTyping}
+                                    value={newMessage}
+                                />
+                            </FormControl>
                         </Box>
                     </Box>
                 ) : (

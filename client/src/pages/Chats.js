@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ChatState } from '../context/ChatProvider'
 import { Box } from '@chakra-ui/react';
 import SearchBar from '../components/chat/SearchBar';
@@ -8,6 +8,10 @@ import ChatBox from '../components/chat/ChatBox';
 const Chats = () => {
   const { user } = ChatState();
   const [fetchAgain, setfetchAgain] = useState(false);
+  const [initfetch, setInitfetch] = useState(0);
+  useEffect(() => {
+    // setInitfetch(1);
+  });
   return (
     <div style={{ 'width': '100%' }}>
       {user ? <SearchBar /> : ""}
@@ -19,8 +23,8 @@ const Chats = () => {
         px={'30px'}
         py={'10px'}
       >
-        {user && <ChatList fetchAgain={fetchAgain} />}
-        {user && <ChatBox fetchAgain={fetchAgain} setfetchAgain={setfetchAgain} />}
+        {user && <ChatList fetchAgain={fetchAgain} initfetch={initfetch} />}
+        {user && <ChatBox fetchAgain={fetchAgain} setfetchAgain={setfetchAgain}  />}
       </Box>
     </div>
   )

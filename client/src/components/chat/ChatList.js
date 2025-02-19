@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { getSender } from '../../config/chatLogics';
 import GroupChatPopup from './GroupChatPopup';
-const ChatList = () => {
+const ChatList = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
 
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
@@ -32,10 +32,10 @@ const ChatList = () => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
   return (
     <Box
-      d={{ base: selectedChat ? "none" : "flex", md: "flex" }}
+      display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
       flexDir="column"
       alignItems="center"
       p={'3px'}
@@ -64,7 +64,7 @@ const ChatList = () => {
             fontSize={{ base: "17px", md: "10px", lg: "17px" }}
             size={'sm'}
           >
-            New Group Chat +
+            New Group +
           </Button>
         </GroupChatPopup>
       </Box>

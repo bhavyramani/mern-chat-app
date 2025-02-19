@@ -13,7 +13,7 @@ const UserListItem = ({ user, handler }) => {
                 color: "white",
             }}
             w="100%"
-            d="flex"
+            display="flex"
             alignItems="center"
             color="black"
             px={'7px'}

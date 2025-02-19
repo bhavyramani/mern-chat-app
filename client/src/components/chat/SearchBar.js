@@ -146,12 +146,6 @@ const SearchBar = () => {
                 })
               }
             </DrawerBody>
-            {/* <DrawerFooter>
-              <DrawerActionTrigger asChild>
-                <Button variant="outline">Cancel</Button>
-              </DrawerActionTrigger>
-              <Button>S</Button>
-            </DrawerFooter> */}
             <DrawerCloseTrigger />
           </DrawerContent>
         </DrawerRoot>
@@ -163,7 +157,7 @@ const SearchBar = () => {
               <Avatar.Image src="https://bit.ly/sage-adebayo" />
             </Avatar.Root>
           </MenuButton>
-          <MenuList bg={'black'} p={'3px'}>
+          <MenuList zIndex={500} bg={'black'} p={'3px'}>
             <MenuItem cursor={'pointer'} value={user.name}>{user.name}</MenuItem>
             <MenuItem cursor={'pointer'} value="export" onClick={handleLogout}>Logout</MenuItem>
           </MenuList>

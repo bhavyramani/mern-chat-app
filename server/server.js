@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middlewares/error.middleware');
 const { authMiddleware } = require('./middlewares/auth.middleware');
@@ -13,6 +14,7 @@ const bodyParser = require('body-parser');
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 connectDB();
 const fileRoutes = require('./routes/file.routes');

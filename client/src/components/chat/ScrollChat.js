@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import ScrollToBottom from 'react-scroll-to-bottom';
 import { Avatar, Text } from '@chakra-ui/react';
+import { FiFile, FiDownload } from 'react-icons/fi';
 import { ChatState } from '../../context/ChatProvider';
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from '../../config/chatLogics';
 
@@ -13,6 +14,31 @@ const ScrollChat = ({ messages }) => {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
+
+    const handleDownload = async (file) => {
+        try {
+            const url = `${process.env.REACT_APP_BACKEND}/api/files/download/${file.file}`;
+            const response = await fetch(url);
+    
+            if (!response.ok) {
+                throw new Error('Failed to download file');
+            }
+    
+            const blob = await response.blob();
+            const blobURL = window.URL.createObjectURL(blob);
+    
+            const a = document.createElement('a');
+            a.href = blobURL;
+            a.download = file.content;
+            document.body.appendChild(a);
+            a.click();
+    
+            window.URL.revokeObjectURL(blobURL);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Download error:', error);
+        }
+    };
     return (
         <ScrollToBottom>
             {messages &&
@@ -29,15 +55,19 @@ const ScrollChat = ({ messages }) => {
                             style={{
                                 backgroundColor: `${m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
                                     }`,
-                                marginLeft: isSameSenderMargin(messages, m, i, user._id),
+                                    marginLeft: isSameSenderMargin(messages, m, i, user._id),
                                 marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
                                 borderRadius: "20px",
                                 padding: "5px 15px",
                                 maxWidth: "75%",
-                                color: 'black'
+                                color: 'black',
+                                display:'flex',
+                                alignItems:"center"
                             }}
-                        >
+                            >
+                            {m.file && <FiFile height={'1px'} width={'1px'} style={{marginRight:"6px"}}/>}
                             {m.content}
+                            {m.file && <FiDownload style={{marginLeft:"6px", cursor:"pointer"}} onClick={()=>handleDownload(m)}/>}
                         </span>
                     </div>
                 ))}

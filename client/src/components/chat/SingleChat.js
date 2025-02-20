@@ -78,6 +78,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     };
 
     const sendFileMessage = async (filename, file) => {
+        console.log(filename, file);
         try {
             const config = {
                 headers: {

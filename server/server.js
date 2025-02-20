@@ -64,7 +64,7 @@ io.on('connection', (socket)=>{
         socket.in(room).emit('stop typing');
     });
 
-    socket.off("setup", ()=>{
+    socket.off("setup", (userData)=>{
         socket.leave(userData._id);
     });
 });

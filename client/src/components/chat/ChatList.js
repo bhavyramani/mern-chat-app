@@ -29,8 +29,6 @@ const ChatList = ({ fetchAgain }) => {
         pauseOnHover: true,
         draggable: true,
       });
-      localStorage.removeItem('userInfo');
-      history.push('/');
     }
   };
   useEffect(() => {

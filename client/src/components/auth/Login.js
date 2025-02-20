@@ -37,12 +37,12 @@ const Login = () => {
                 { email, password },
                 config
             );
+            localStorage.setItem("userInfo", JSON.stringify(data));
 
             toast.success("Login Successful!", {
                 position: "top-right",
                 autoClose: 5000,
             });
-            localStorage.setItem("userInfo", JSON.stringify(data));
             setLoading(false);
             history.push("/chats");
         } catch (error) {

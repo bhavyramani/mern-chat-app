@@ -5,10 +5,30 @@ const Chat = require("../models/chat.model");
 
 const allMessages = errorHandler(async (req, res) => {
     try {
-        const messages = await Message.find({ chat: req.params.chatId })
+        const { chatId } = req.params;
+        let { page, limit = 20 } = req.query;
+        limit = parseInt(limit);
+        const totalMessages = await Message.countDocuments({ chat: chatId });
+        const totalPages = Math.ceil(totalMessages / limit) || 1;
+        if (!page) {
+            page = 1;
+        } else {
+            page = parseInt(page);
+        }
+        const skip = (page - 1) * limit;
+        
+        const messages = await Message.find({ chat: chatId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .populate("sender", "name profile email")
             .populate("chat");
-        res.json(messages);
+
+        res.json({
+            messages,
+            currentPage: page,
+            totalPages,
+        });
     } catch (error) {
         res.status(400);
         throw new Error(error.message);
@@ -37,8 +57,7 @@ const sendMessage = errorHandler(async (req, res) => {
             select: "name profile email",
         });
 
-        await Chat.findByIdAndUpdate(req.body.chatId, { lastMessage: message });
-
+        await Chat.findByIdAndUpdate(chatId, { lastMessage: message });
         res.json(message);
     } catch (error) {
         res.status(400);

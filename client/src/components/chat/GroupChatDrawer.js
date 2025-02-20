@@ -14,6 +14,8 @@ import { FormControl } from '@chakra-ui/form-control';
 import UserListItem from '../UserCard/UserListItem';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { IoSettingsSharp } from "react-icons/io5";
+import { IoExitOutline } from "react-icons/io5";
 
 const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAgain, user }) => {
     const [open, setOpen] = useState(false);
@@ -121,7 +123,7 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
     return (
         <DrawerRoot open={open} placement={'end'} onOpenChange={(e) => setOpen(e.open)}>
             <DrawerTrigger asChild>
-                <Button onClick={() => setOpen(true)}>Settings</Button>
+                <Button onClick={() => setOpen(true)}><IoSettingsSharp/></Button>
             </DrawerTrigger>
             <DrawerBackdrop />
             <DrawerContent>
@@ -178,7 +180,7 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
                 </DrawerBody>
                 <DrawerFooter>
                     <Button onClick={() => handleRemove(user)} color={'white'} bg={'red'}>
-                        Leave Group
+                        Leave Group <IoExitOutline/>
                     </Button>
                 </DrawerFooter>
                 <DrawerCloseTrigger asChild>

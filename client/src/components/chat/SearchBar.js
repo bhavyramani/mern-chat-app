@@ -19,6 +19,7 @@ import {
 import { toast } from "react-toastify";
 import axios from 'axios';
 import UserListItem from '../UserCard/UserListItem';
+import { IoSearchOutline } from "react-icons/io5";
 
 const SearchBar = () => {
   const [search, setSearch] = useState("");
@@ -114,8 +115,8 @@ const SearchBar = () => {
           <DrawerBackdrop />
           <DrawerTrigger asChild>
             <Button variant="ghost">
-              <Text display={{ base: "none", md: "flex" }} px={4}>
-                Search User
+              <Text px={4}>
+                <IoSearchOutline size={20} />
               </Text>
             </Button>
           </DrawerTrigger>

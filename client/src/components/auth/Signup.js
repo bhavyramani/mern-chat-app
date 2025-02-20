@@ -57,7 +57,6 @@ const Signup = () => {
                 formData,
                 config
             );
-            console.log(data);
             toast.success("Registration Successful!", {
                 position: "top-right",
                 autoClose: 5000,
@@ -65,14 +64,13 @@ const Signup = () => {
 
             localStorage.setItem("userInfo", JSON.stringify(data));
             history.push("/chats");
-            setLoading(false);
         } catch (error) {
             toast.error(`Error: ${error.response?.data?.message || "Something went wrong!"}`, {
                 position: "top-right",
                 autoClose: 5000,
             });
+        } finally{
             setLoading(false);
-
         }
     };
     return (
@@ -154,6 +152,7 @@ const Signup = () => {
                 width={'100%'}
                 mt={'15px'}
                 onClick={handleSubmit}
+                disabled={loading}
             >
                 Sign Up
             </Button>

@@ -10,9 +10,9 @@ export const getUserStatus = (loggedUser, users) => {
     const lastSeenTime = new Date(sender.lastSeen);
     const currentTime = new Date();
 
-    const diffInMinutes = (currentTime - lastSeenTime) / (1000 * 60); // Convert milliseconds to minutes
+    const diffInMinutes = (currentTime - lastSeenTime) / (1000 * 60); 
 
-    if (diffInMinutes <= 5) {
+    if (diffInMinutes <= process.env.REACT_APP_HEARTBEAT_MINUTES) {
         return "Online";
     } else {
         const istTime = new Intl.DateTimeFormat("en-IN", {

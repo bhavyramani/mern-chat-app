@@ -16,6 +16,8 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { IoSettingsSharp } from "react-icons/io5";
 import { IoExitOutline } from "react-icons/io5";
+import { ChatState } from '../../context/ChatProvider';
+import { getUserStatus } from '../../config/chatLogics';
 
 const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAgain, user }) => {
     const [open, setOpen] = useState(false);
@@ -123,7 +125,7 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
     return (
         <DrawerRoot open={open} placement={'end'} onOpenChange={(e) => setOpen(e.open)}>
             <DrawerTrigger asChild>
-                <Button onClick={() => setOpen(true)}><IoSettingsSharp/></Button>
+                <Button onClick={() => setOpen(true)}><IoSettingsSharp /></Button>
             </DrawerTrigger>
             <DrawerBackdrop />
             <DrawerContent>
@@ -151,10 +153,11 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
                         </FormControl>
                         <Text>Click on a user to remove them from the group</Text>
                         {selectedChat.users.map((u) => (
+
                             <UserListItem
                                 key={u._id}
                                 user={u}
-                                admin={selectedChat.admin}
+                                status={getUserStatus(user, selectedChat.users)}
                                 handler={() => handleRemove(u)}
                             />
                         ))}
@@ -180,7 +183,7 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
                 </DrawerBody>
                 <DrawerFooter>
                     <Button onClick={() => handleRemove(user)} color={'white'} bg={'red'}>
-                        Leave Group <IoExitOutline/>
+                        Leave Group <IoExitOutline />
                     </Button>
                 </DrawerFooter>
                 <DrawerCloseTrigger asChild>

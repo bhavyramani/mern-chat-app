@@ -13,7 +13,6 @@ const ScrollChat = ({ messages }) => {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
-    console.log(messages);
     return (
         <ScrollToBottom>
             {messages &&

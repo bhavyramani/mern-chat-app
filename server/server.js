@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('heartbeat', async (userId) => {
+        console.log("Heartbeat from: " + userId);
         await User.findByIdAndUpdate(userId, { lastSeen: new Date() });
         io.emit('userStatus', { userId, status: 'online' });
     });

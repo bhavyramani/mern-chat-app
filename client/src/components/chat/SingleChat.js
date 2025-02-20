@@ -151,7 +151,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
             }
         };
 
-        const interval = setInterval(sendHeartbeat, 5 * 60 * 1000);
+        const interval = setInterval(sendHeartbeat, process.env.REACT_APP_HEARTBEAT_MINUTES * 60 * 1000);
         return () => clearInterval(interval);
     }, [socket, user]);
 

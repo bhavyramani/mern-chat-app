@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ChatState } from '../../context/ChatProvider'
-import { Box, Button, DrawerFooter, Input, Text } from '@chakra-ui/react';
+import { Box, Button, Input, Text } from '@chakra-ui/react';
 import { getSender } from '../../config/chatLogics';
-import {
-    DrawerRoot,
-    DrawerBackdrop,
-    DrawerTrigger,
-    DrawerContent,
-    DrawerHeader,
-    DrawerBody,
-    DrawerCloseTrigger,
-    DrawerTitle
-} from "../ui/drawer";
-import UserListItem from '../UserCard/UserListItem';
 import { FormControl } from '@chakra-ui/form-control';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -20,205 +9,37 @@ import { Spinner } from '@chakra-ui/react';
 import '../styles.css'
 import ScrollChat from './ScrollChat';
 import io from 'socket.io-client';
+import GroupChatDrawer from './GroupChatDrawer';
+import Lottie from 'react-lottie';
+import animationData from '../animations/typing.json';
+
 const ENDPOINT = 'http://localhost:5000';
 let socket = null;
 let selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const { user, selectedChat, setSelectedChat } = ChatState();
-    const [open, setOpen] = useState(false);
-    const [groupChatName, setGroupChatName] = useState();
-    const [search, setSearch] = useState("");
-    const [searchResult, setSearchResult] = useState([]);
-    const [renameloading, setRenameLoading] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const [messageLoading, setMessageLoading] = useState(false);
     const [socketConnected, setSocketConnected] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const [typing, setTyping] = useState(false);
 
     useEffect(() => {
         if (socket === null) {
             socket = io(ENDPOINT);
             socket.emit("setup", user);
-            socket.on('connection', () => setSocketConnected(true));
+            socket.on('connected', () => setSocketConnected(true));
+            socket.on('typing', () => setIsTyping(true));
+            socket.on('stop typing', () => setIsTyping(false));
         }
     }, []);
-
-    const handleSearch = async (query) => {
-        setSearch(query);
-        if (!query) {
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
-            const { data } = await axios.get(`/api/user?search=${search}`, config);
-
-            setLoading(false);
-            setSearchResult(data);
-        } catch (error) {
-            toast({
-                title: "Error Occured!",
-                description: "Failed to Load the Search Results",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-                position: "bottom-left",
-            });
-            setLoading(false);
-        }
-    };
-
-    const handleRename = async () => {
-        if (!groupChatName) return;
-
-        try {
-            setRenameLoading(true);
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
-            const { data } = await axios.put(
-                `/api/chat/rename`,
-                {
-                    chatId: selectedChat._id,
-                    chatName: groupChatName,
-                },
-                config
-            );
-
-            setSelectedChat(data);
-            setfetchAgain(!fetchAgain);
-            setRenameLoading(false);
-        } catch (error) {
-            toast.error("Only admins can Rename!", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
-            setRenameLoading(false);
-        }
-        setGroupChatName("");
-    };
-
-    const handleAddUser = async (user1) => {
-        if (selectedChat.users.find((u) => u._id === user1._id)) {
-            toast.warn("User Already in group!", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
-            return;
-        }
-
-        if (selectedChat.admin._id !== user._id) {
-            toast.error("Only admins can add someone!", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
-            const { data } = await axios.put(
-                `/api/chat/group/add`,
-                {
-                    chatId: selectedChat._id,
-                    userId: user1._id,
-                },
-                config
-            );
-
-            setSelectedChat(data);
-            setfetchAgain(!fetchAgain);
-            setLoading(false);
-        } catch (error) {
-            toast.error("Error Occured", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
-            setLoading(false);
-        }
-        setGroupChatName("");
-    };
-
-    const handleRemove = async (user1) => {
-        if (selectedChat.admin._id !== user._id && user1._id !== user._id) {
-            toast.error("Only admins can remove someone!", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
-            const { data } = await axios.put(
-                `/api/chat/group/remove`,
-                {
-                    chatId: selectedChat._id,
-                    userId: user1._id,
-                },
-                config
-            );
-
-            user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
-            setfetchAgain(!fetchAgain);
-            fetchMessages();
-            setLoading(false);
-        } catch (error) {
-            toast.error("Error Occured", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
-            setLoading(false);
-        }
-        setGroupChatName("");
-    };
 
     const sendMessage = async (e) => {
         if (e.key === 'Enter' && newMessage) {
             try {
+                socket.emit('stop typing', selectedChat._id);
                 const config = {
                     headers: {
                         "Content-type": "application/json",
@@ -277,6 +98,22 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
 
     const handleTyping = (e) => {
         setNewMessage(e.target.value);
+
+        if (!socketConnected)
+            return;
+        if (!typing) {
+            setTyping(true);
+            socket.emit('typing', selectedChat._id);
+        }
+        let lastTypingTime = new Date().getTime();
+        let timerLength = 3000;
+        setTimeout(() => {
+            let time = new Date().getTime();
+            if (typing && time - lastTypingTime >= timerLength) {
+                socket.emit('stop typing', selectedChat._id);
+                setTyping(false);
+            }
+        }, timerLength);
     };
 
     useEffect(() => {
@@ -288,11 +125,11 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     useEffect(() => {
         socket.on('message received', (newMessageRecived) => {
             if (!selectedChatCompare || selectedChatCompare._id !== newMessageRecived.chat._id) {
-
+                // Notification Logic
             } else {
                 setMessages([...messages, newMessageRecived]);
+                setfetchAgain(!fetchAgain);
             }
-
         });
     });
     return (
@@ -326,85 +163,15 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                         {selectedChat.chatName.toUpperCase()}
                                     </Box>
                             }
-                            {selectedChat.groupChat ? <DrawerRoot open={open} placement={'end'} onOpenChange={(e) => setOpen(e.open)}>
-                                <DrawerTrigger asChild>
-                                    <Button onClick={() => setOpen(true)}>Settings</Button>
-                                </DrawerTrigger>
-                                <DrawerBackdrop />
-                                <DrawerContent>
-                                    <DrawerHeader>
-                                        <DrawerTitle>{selectedChat.chatName}</DrawerTitle>
-                                    </DrawerHeader>
-                                    <DrawerBody>
-                                        <Box w="100%" display="flex" flexWrap="wrap" pb={3}>
-                                            <FormControl display="flex">
-                                                <Input
-                                                    placeholder="Chat Name"
-                                                    mb={3}
-                                                    value={groupChatName}
-                                                    onChange={(e) => setGroupChatName(e.target.value)}
-                                                />
-                                                <Button
-                                                    variant="solid"
-                                                    colorScheme="teal"
-                                                    ml={1}
-                                                    color={'white'}
-                                                    bg={'green'}
-                                                    isLoading={renameloading}
-                                                    onClick={handleRename}
-                                                >
-                                                    Save
-                                                </Button>
-                                            </FormControl>
-                                            <Text>Click on User to Remove from Group</Text>
-                                            {selectedChat.users.map((u) => (
-                                                <UserListItem
-                                                    key={u._id}
-                                                    user={u}
-                                                    admin={selectedChat.groupAdmin}
-                                                    handler={() => handleRemove(u)}
-                                                />
-                                            ))}
-                                            {selectedChat?.admin._id == user?._id ?
-                                                <Box w={'100%'} mt={'20px'}>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Add User to group"
-                                                            mb={1}
-                                                            onChange={(e) => handleSearch(e.target.value)}
-                                                        />
-                                                    </FormControl>
-
-                                                    {loading ? (
-                                                        <Spinner size="lg" />
-                                                    ) : (
-                                                        searchResult?.map((user) => (
-                                                            <UserListItem
-                                                                key={user._id}
-                                                                user={user}
-                                                                handler={() => handleAddUser(user)}
-                                                            />
-                                                        ))
-                                                    )}
-                                                </Box>
-                                                : ""
-                                            }
-                                        </Box>
-                                    </DrawerBody>
-                                    <DrawerFooter>
-                                        <Button
-                                            onClick={() => handleRemove(user)}
-                                            color={'white'}
-                                            bg={'red'}
-                                        >
-                                            Leave Group
-                                        </Button>
-                                    </DrawerFooter>
-                                    <DrawerCloseTrigger asChild>
-                                        <Button colorScheme="red">Close</Button>
-                                    </DrawerCloseTrigger>
-                                </DrawerContent>
-                            </DrawerRoot> : ""}
+                            {selectedChat.groupChat && (
+                                <GroupChatDrawer
+                                    selectedChat={selectedChat}
+                                    setSelectedChat={setSelectedChat}
+                                    fetchAgain={fetchAgain}
+                                    setfetchAgain={setfetchAgain}
+                                    user={user}
+                                />
+                            )}
 
                         </Text>
                         <Box
@@ -438,6 +205,17 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                 isRequired
                                 mt={3}
                             >
+                                {isTyping && <Lottie
+                                    options={{
+                                        loop: true,
+                                        autoplay: true,
+                                        animationData: animationData,
+                                        rendererSettings: { preserveAspectRatio: "xMidYmid slice" }
+                                    }}
+                                    width={50}
+                                    height={20}
+                                    style={{ marginBottom: 15, marginLeft: 0 }}
+                                />}
                                 <Input
                                     variant={'filled'}
                                     bg={'gray.300'}

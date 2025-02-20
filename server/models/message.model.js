@@ -6,9 +6,9 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    type: {
-      type: Boolean,
-      default: false,
+    file: {
+      type: String,
+      default: null,
     },
     content: {
       type: String,

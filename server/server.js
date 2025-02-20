@@ -9,14 +9,16 @@ const messageRoutes = require('./routes/message.routes');
 const User = require('./models/user.model');
 
 dotenv.config();
-connectDB();
 
 const app = express();
 app.use(express.json());
+connectDB();
+const fileRoutes = require('./routes/file.routes');
 
 app.use('/api/user', userRoutes);
 app.use('/api/chat', authMiddleware, chatRoutes);
 app.use('/api/message', authMiddleware, messageRoutes)
+app.use('/api/files', fileRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

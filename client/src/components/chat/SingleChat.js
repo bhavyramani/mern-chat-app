@@ -193,11 +193,11 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                         {selectedChat.groupChat
                             ? <Box>{selectedChat.chatName.toUpperCase()}</Box> :
                             <Box display="flex" alignItems="center" justifyContent={'space-between'} w={'100%'} px={10}>
+                                <Box ml={2}>{getSender(user, selectedChat.users)}</Box>
                                 <Box display={'flex'} h={'100%'} alignItems={'center'} gap={1} justifyContent={'center'} fontSize={'sm'}>
                                     <FaCircle height={'5px'} width={'5px'} color={getUserStatus(user, selectedChat.users) === 'Online' ? 'green' : 'gray'} />
                                     {getUserStatus(user, selectedChat.users)}
                                 </Box>
-                                <Box ml={2}>{getSender(user, selectedChat.users)}</Box>
                             </Box>
                         }
                         {selectedChat.groupChat && (
@@ -249,7 +249,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                 borderRadius='5px'
                                 marginLeft='8px'
                                 cursor='pointer'
-                                display={{ base: 'none', md: 'flex' }}
+                                display={{ base: 'flex', md: 'none' }}
                                 alignItems='center'
                                 justifyContent='center'
                                 color='white'

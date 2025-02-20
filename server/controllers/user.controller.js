@@ -3,7 +3,8 @@ const User = require('../models/user.model');
 const { getToken } = require('../config/token');
 
 const registerUser = errorHandler(async (req, res) => {
-    const { name, email, password, profile } = req.body;
+    const { name, email, password } = req.body;
+    const profile = req.file.filename;
 
     if (!name || !email || !password) {
         res.status(400);
@@ -73,5 +74,7 @@ const allUsers = errorHandler(async (req, res) => {
     }, { _id: 1, name: 1, email: 1 }).find({ _id: { $ne: req.user._id } });
     res.send(users);
 });
+
+// const 
 
 module.exports = { registerUser, authUser, allUsers };

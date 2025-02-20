@@ -155,7 +155,7 @@ const SearchBar = () => {
           <MenuButton as={Button} p={'1px'} >
             <Avatar.Root>
               <Avatar.Fallback name={user.name} />
-              <Avatar.Image src="https://bit.ly/sage-adebayo" />
+              <Avatar.Image src={`${process.env.REACT_APP_BACKEND}/uploads/${user.profile}`}/>
             </Avatar.Root>
           </MenuButton>
           <MenuList zIndex={500} bg={'black'} p={'3px'}>

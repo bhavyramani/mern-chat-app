@@ -26,7 +26,7 @@ const UserListItem = ({ user, handler }) => {
 
                     <Avatar.Root size={'sm'}>
                         <Avatar.Fallback name={user.name} />
-                        <Avatar.Image src="https://bit.ly/sage-adebayo" />
+                        <Avatar.Image src={`${process.env.REACT_APP_BACKEND}/uploads/${user.profile}`} />
                     </Avatar.Root>
                 </Box>
                 <Box ml={'10px'}>

@@ -29,7 +29,7 @@ const Signup = () => {
             setLoading(false);
             return;
         }
-        
+
         if (password !== confirmPassword) {
             toast.warn("Passwords do not match!", {
                 position: "top-right",
@@ -42,15 +42,22 @@ const Signup = () => {
         try {
             const config = {
                 headers: {
-                    "Content-type": "application/json",
+                    "Content-type": "multipart/form-data",
                 },
             };
+
+            const formData = new FormData();
+            formData.append("profile", profile);
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("password", password);
+
             const { data } = await axios.post(
                 "/api/user/signup",
-                { name, email, password },
+                formData,
                 config
             );
-
+            console.log(data);
             toast.success("Registration Successful!", {
                 position: "top-right",
                 autoClose: 5000,
@@ -127,12 +134,20 @@ const Signup = () => {
                 </FormLabel>
                 <Input
                     type='file'
+                    accept=".jpg"
                     mt={'7px'}
-                    // border={'solid'}
-                    // borderColor={'white'}
-                    // borderWidth={'1px'}
-                    // placeholder='Enter Password Again'
-                    onChange={(e) => { setConfirmPassword(e.target.value) }}
+                    onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file && file.type !== "image/jpeg") {
+                            toast.warn("Only JPG images are allowed!", {
+                                position: "top-right",
+                                autoClose: 5000,
+                            });
+                            e.target.value = "";
+                            return;
+                        }
+                        setProfile(file);
+                    }}
                 />
             </FormControl>
             <Button

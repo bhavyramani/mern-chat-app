@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middlewares/error.middleware');
 const { authMiddleware } = require('./middlewares/auth.middleware');
@@ -7,14 +8,16 @@ const userRoutes = require('./routes/user.routes');
 const chatRoutes = require('./routes/chat.routes');
 const messageRoutes = require('./routes/message.routes');
 const User = require('./models/user.model');
+const bodyParser = require('body-parser');
 
 dotenv.config();
 
 const app = express();
-app.use(express.json());
+app.use(bodyParser.json());
 connectDB();
 const fileRoutes = require('./routes/file.routes');
 
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/user', userRoutes);
 app.use('/api/chat', authMiddleware, chatRoutes);
 app.use('/api/message', authMiddleware, messageRoutes)

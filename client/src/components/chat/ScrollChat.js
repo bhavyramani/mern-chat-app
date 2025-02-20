@@ -13,6 +13,7 @@ const ScrollChat = ({ messages }) => {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
+    console.log(messages);
     return (
         <ScrollToBottom>
             {messages &&
@@ -22,7 +23,7 @@ const ScrollChat = ({ messages }) => {
                             isLastMessage(messages, i, user._id)) && (
                                 <Avatar.Root size={'sm'} mt={'7px'} mr={'5px'}>
                                     <Avatar.Fallback name={user.name} />
-                                    <Avatar.Image src="https://bit.ly/sage-adebayo" />
+                                    <Avatar.Image src={`${process.env.REACT_APP_BACKEND}/uploads/${m.sender.profile}`} />
                                 </Avatar.Root>
                             )}
                         <span
@@ -41,7 +42,7 @@ const ScrollChat = ({ messages }) => {
                         </span>
                     </div>
                 ))}
-            <div ref={messagesEndRef} style={{marginTop:"5px"}} />
+            <div ref={messagesEndRef} style={{ marginTop: "5px" }} />
         </ScrollToBottom>
     )
 }

@@ -153,11 +153,10 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
                         </FormControl>
                         <Text>Click on a user to remove them from the group</Text>
                         {selectedChat.users.map((u) => (
-
                             <UserListItem
                                 key={u._id}
                                 user={u}
-                                status={getUserStatus(user, selectedChat.users)}
+                                status={getUserStatus(u, selectedChat.users)}
                                 handler={() => handleRemove(u)}
                             />
                         ))}

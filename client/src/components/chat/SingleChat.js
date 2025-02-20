@@ -31,6 +31,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const [typing, setTyping] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     // Use refs to hold current page values for socket callback
     const currentPageRef = useRef(currentPage);
@@ -51,8 +52,60 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     }, [user]);
 
+    const handleFileUpload = async () => {
+        const file = selectedFile;
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                    "Content-Type": "multipart/form-data"
+                }
+            };
+
+            const { data } = await axios.post("/api/files/upload", formData, config);
+            sendFileMessage(data.filename, file);
+        } catch (error) {
+            toast.error("File upload failed");
+        }finally{
+            setNewMessage("");
+            setSelectedFile(null);
+        }
+    };
+
+    const sendFileMessage = async (filename, file) => {
+        try {
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${user.token}`
+                }
+            };
+
+            const { data } = await axios.post('/api/message', {
+                file: filename,
+                content: file.name,   
+                chatId: selectedChat._id
+            }, config);
+
+            socket.emit("new message", data);
+            setMessages((prev) => [...prev, data]); // Append message
+        } catch (error) {
+            toast.error("Error sending file message");
+        }
+    };
+
     const sendMessage = async () => {
         if (!newMessage) return;
+        if(selectedFile !== null){
+            setNewMessage('(File Selected)')
+            handleFileUpload();
+            return;
+        }
         try {
             setNewMessage("");
             socket.emit('stop typing', selectedChat._id);
@@ -155,7 +208,6 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         return () => clearInterval(interval);
     }, [socket, user]);
 
-    // "Prev" button: load older messages (increment page number)
     const handlePrev = () => {
         if (currentPage < totalPages) {
             fetchMessagesForPage(currentPage + 1, 'prev');
@@ -167,10 +219,6 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         if (currentPage > 1) {
             fetchMessagesForPage(currentPage - 1, 'next');
         }
-    };
-
-    const handleFileUpload = () => {
-        alert("File Upload Clicked!");
     };
 
     return (
@@ -271,10 +319,13 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                 >
                                     <BsThreeDotsVertical size={20} />
                                 </MenuButton>
-                                <MenuList bg={'gray'} padding={'5px'} borderRadius={'5px'}>
+                                <MenuList bg={'gray'} display={'flex'} flexDir={'column'} alignItems={'center'} padding={'5px'} borderRadius={'5px'}>
                                     <MenuItem cursor={'pointer'} onClick={handlePrev} isDisabled={!currentPage || currentPage === totalPages}>Prev</MenuItem>
                                     <MenuItem cursor={'pointer'} onClick={handleNext} isDisabled={!currentPage || currentPage === 1}>Next</MenuItem>
-                                    <MenuItem cursor={'pointer'} onClick={handleFileUpload}>Upload File</MenuItem>
+                                    <MenuItem cursor={'pointer'}>
+                                        <Input type='file' id='file' display={'none'} w={'10px'} onChange={(e)=>{setSelectedFile(e.target.files[0]); setNewMessage('(File Selected)')}} />
+                                        <Text onClick={()=>{document.getElementById('file').click()}}>Upload File</Text>
+                                    </MenuItem>
                                 </MenuList>
                             </Menu>
                         </FormControl>

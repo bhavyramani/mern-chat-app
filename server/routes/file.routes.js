@@ -27,15 +27,19 @@ router.post('/upload', authMiddleware, upload.single('file'), (req, res) => {
         return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const uploadStream = gridfsBucket.openUploadStream(req.file.originalname, {
+    // Generate custom filename: timestamp + userId + original filename
+    const customFilename = `${Date.now()}_${req.user._id}_${req.file.originalname}`;
+
+    const uploadStream = gridfsBucket.openUploadStream(customFilename, {
         contentType: req.file.mimetype
     });
 
     uploadStream.end(req.file.buffer);
+
     uploadStream.on('finish', () => {
         res.status(201).json({
             fileId: uploadStream.id,
-            filename: req.file.originalname,
+            filename: customFilename,
             contentType: req.file.mimetype
         });
     });
@@ -45,6 +49,7 @@ router.post('/upload', authMiddleware, upload.single('file'), (req, res) => {
         res.status(500).json({ error: 'Error uploading file' });
     });
 });
+
 
 router.get('/download/:filename', async (req, res) => {
     try {

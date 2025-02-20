@@ -1,8 +1,11 @@
 import React from 'react'
 import { FaCircle } from 'react-icons/fa';
 import { Box, Avatar, Text } from '@chakra-ui/react';
+import { ChatState } from '../../context/ChatProvider';
+import { getUserStatus } from '../../config/chatLogics';
 
-const UserListItem = ({ user, handler, status }) => {
+const UserListItem = ({ user, handler }) => {
+    const { selectedChat } = ChatState();
     return (
         <Box
             onClick={handler}
@@ -34,7 +37,7 @@ const UserListItem = ({ user, handler, status }) => {
                 <Box ml={'10px'}>
                     <Box display={'flex'} alignItems={'center'} gap={1} justifyContent={'start'} fontSize={''}>
                         <Text fontSize={'md'}>{user.name}</Text>
-                        
+
                     </Box>
                     <Text fontSize="xs">
                         <b>Email : </b>
@@ -42,7 +45,7 @@ const UserListItem = ({ user, handler, status }) => {
                     </Text>
                 </Box>
             </Box>
-            {status && <FaCircle height={1} width={1} color={status === 'Online' ? 'green' : 'gray'} />}
+            <FaCircle height={1} width={1} color={getUserStatus(user, selectedChat.users) === 'Online' ? 'green' : 'gray'} />
         </Box>
     )
 }

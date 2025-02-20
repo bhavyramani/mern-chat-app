@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/index.js",
-    "build": "npm install --legacy-peer-deps && npm install --legacy-peer-deps --prefix client && npm run build --prefix client"
+    "build": "npm install  && npm install --prefix client && npm run build --prefix client"
   },
   "author": "Bhavy Ramani",
   "license": "ISC",

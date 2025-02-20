@@ -17,7 +17,7 @@ import { IoMdArrowRoundBack, IoMdSend } from "react-icons/io";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaCircle } from "react-icons/fa";
 
-const ENDPOINT = 'http://localhost:5000';
+const ENDPOINT = process.env.REACT_APP_BACKEND;
 let socket = null;
 let selectedChatCompare;
 

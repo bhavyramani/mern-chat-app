@@ -7,20 +7,21 @@ const registerUser = errorHandler(async (req, res) => {
 
     if (!name || !email || !password) {
         res.status(400);
-        throw new Error('Please fill all fields');
+        throw new Error("Please fill all fields");
     }
 
     const checkUser = await User.findOne({ email });
     if (checkUser) {
         res.status(400);
-        throw new Error('User already exists');
+        throw new Error("User already exists");
     }
 
     const user = await User.create({
         name,
         email,
         password,
-        profile
+        profile,
+        lastSeen: new Date() // Store current timestamp as last seen
     });
 
     if (user) {
@@ -29,11 +30,12 @@ const registerUser = errorHandler(async (req, res) => {
             name: user.name,
             email: user.email,
             profile: user.profile,
+            lastSeen: user.lastSeen,
             token: getToken(user._id)
         });
     } else {
         res.status(400);
-        throw new Error('Failed to create user');
+        throw new Error("Failed to create user");
     }
 });
 

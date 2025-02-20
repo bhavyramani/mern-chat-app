@@ -2,6 +2,32 @@ export const getSender = (loggedUser, users) => {
     return users[0]._id === loggedUser._id ? users[1].name : users[0].name;
 };
 
+export const getUserStatus = (loggedUser, users) => {
+    const sender = users ? users.find(user => user._id !== loggedUser._id) : null;
+
+    if (!sender || !sender.lastSeen) return "Unknown";
+
+    const lastSeenTime = new Date(sender.lastSeen);
+    const currentTime = new Date();
+
+    const diffInMinutes = (currentTime - lastSeenTime) / (1000 * 60); // Convert milliseconds to minutes
+
+    if (diffInMinutes <= 5) {
+        return "Online";
+    } else {
+        const istTime = new Intl.DateTimeFormat("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "Asia/Kolkata"
+        }).format(lastSeenTime);    
+        return `Last seen: ${istTime}`;
+    }
+};
+
 export const isSameSender = (messages, m, i, userId) => {
     return (
         i < messages.length - 1 &&

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { ChatState } from '../../context/ChatProvider';
 import { Box, Button, Input, Text } from '@chakra-ui/react';
 import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
-import { getSender } from '../../config/chatLogics';
+import { getSender, getUserStatus } from '../../config/chatLogics';
 import { FormControl } from '@chakra-ui/form-control';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -15,6 +15,7 @@ import Lottie from 'react-lottie';
 import animationData from '../animations/typing.json';
 import { IoMdArrowRoundBack, IoMdSend } from "react-icons/io";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { FaCircle } from "react-icons/fa";
 
 const ENDPOINT = 'http://localhost:5000';
 let socket = null;
@@ -28,7 +29,6 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const [socketConnected, setSocketConnected] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [typing, setTyping] = useState(false);
-    // Pagination state (default page is 1 – newest messages)
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(null);
 
@@ -94,8 +94,6 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }, timerLength);
     };
 
-    // Fetch messages for a given page.
-    // Backend is sorted descending (newest first), so we reverse them to display chronologically.
     const fetchMessagesForPage = async (page, direction = 'initial') => {
         if (!selectedChat) return;
         try {
@@ -121,7 +119,6 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     };
 
-    // When a new chat is selected, load page 1 (newest messages)
     useEffect(() => {
         if (selectedChat) {
             setMessages([]);
@@ -132,7 +129,6 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     }, [selectedChat]);
 
-    // Register "message received" listener only once.
     useEffect(() => {
         const messageHandler = (newMessageRecived) => {
             if (!selectedChatCompare || selectedChatCompare._id !== newMessageRecived.chat._id) {
@@ -147,6 +143,17 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
             socket.off('message received', messageHandler);
         };
     }, []);
+
+    useEffect(() => {
+        const sendHeartbeat = () => {
+            if (socket && user) {
+                socket.emit("heartbeat", user._id);
+            }
+        };
+
+        const interval = setInterval(sendHeartbeat, 5 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [socket, user]);
 
     // "Prev" button: load older messages (increment page number)
     const handlePrev = () => {
@@ -184,8 +191,14 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                             <IoMdArrowRoundBack />
                         </Button>
                         {selectedChat.groupChat
-                            ? <Box>{selectedChat.chatName.toUpperCase()}</Box>
-                            : <Box>{getSender(user, selectedChat.users)}</Box>
+                            ? <Box>{selectedChat.chatName.toUpperCase()}</Box> :
+                            <Box display="flex" alignItems="center" justifyContent={'space-between'} w={'100%'} px={10}>
+                                <Box display={'flex'} h={'100%'} alignItems={'center'} gap={1} justifyContent={'center'} fontSize={'sm'}>
+                                    <FaCircle height={'5px'} width={'5px'} color={getUserStatus(user, selectedChat.users) === 'Online' ? 'green' : 'gray'} />
+                                    {getUserStatus(user, selectedChat.users)}
+                                </Box>
+                                <Box ml={2}>{getSender(user, selectedChat.users)}</Box>
+                            </Box>
                         }
                         {selectedChat.groupChat && (
                             <GroupChatDrawer
@@ -236,7 +249,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                 borderRadius='5px'
                                 marginLeft='8px'
                                 cursor='pointer'
-                                display='flex'
+                                display={{ base: 'none', md: 'flex' }}
                                 alignItems='center'
                                 justifyContent='center'
                                 color='white'

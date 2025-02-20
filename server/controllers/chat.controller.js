@@ -121,6 +121,18 @@ const renameGroup = errorHandler(async (req, res) => {
 const addToGroup = errorHandler(async (req, res) => {
     const { chatId, userId } = req.body;
 
+    const chat = await Chat.findById(chatId).populate("users", "-password");
+
+    if (!chat) {
+        res.status(404);
+        throw new Error("Chat Not Found");
+    }
+
+    if (chat.users.length >= 100) {
+        res.status(400);
+        throw new Error("Group chat user limit (100) reached.");
+    }
+
     const added = await Chat.findByIdAndUpdate(
         chatId,
         {
@@ -133,12 +145,7 @@ const addToGroup = errorHandler(async (req, res) => {
         .populate("users", "-password")
         .populate("admin", "-password");
 
-    if (!added) {
-        res.status(404);
-        throw new Error("Chat Not Found");
-    } else {
-        res.json(added);
-    }
+    res.json(added);
 });
 
 const removeFromGroup = errorHandler(async (req, res) => {

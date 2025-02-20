@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     },
     profile: {
         type: String,
+    },
+    lastSeen: {
+        type: Date,
+        default: null
     }
 },
     {

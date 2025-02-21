@@ -11,7 +11,9 @@ import UserListItem from '../UserCard/UserListItem';
 import UserBadgeItem from '../UserCard/UserBadgeItem';
 import { toast } from 'react-toastify';
 
+// Pop up that appears when creating new group chat
 const GroupChatPopup = ({ children }) => {
+
     // Control pop-up visibility
     const [isOpen, setIsOpen] = useState(false);
     const openPopup = () => setIsOpen(true);
@@ -26,6 +28,7 @@ const GroupChatPopup = ({ children }) => {
 
     const { user, chats, setChats } = ChatState();
 
+    // Check if selected user is already in group or not
     const handleGroup = (userToAdd) => {
         if (selectedUsers.find((u) => u._id === userToAdd._id)) {
             toast.warn("User already added", {
@@ -41,6 +44,7 @@ const GroupChatPopup = ({ children }) => {
         setSelectedUsers([...selectedUsers, userToAdd]);
     };
 
+    // Search for users to add in group
     const handleSearch = async (query) => {
         setSearch(query);
         if (!query) return;
@@ -52,7 +56,6 @@ const GroupChatPopup = ({ children }) => {
             };
             const { data } = await axios.get(`/api/user?search=${query}`, config);
             setSearchResult(data);
-            setLoading(false);
         } catch (error) {
             toast.error("Failed to load search results", {
                 position: "top-right",
@@ -62,14 +65,17 @@ const GroupChatPopup = ({ children }) => {
                 pauseOnHover: true,
                 draggable: true,
             });
+        } finally {
             setLoading(false);
         }
     };
 
+    // Remove user "add to group" list
     const handleDelete = (delUser) => {
         setSelectedUsers(selectedUsers.filter((sel) => sel._id !== delUser._id));
     };
 
+    // Function to call api for creating group
     const handleSubmit = async () => {
         if (!groupChatName || selectedUsers.length === 0) {
             toast.warn("Please fill all the fields!", {

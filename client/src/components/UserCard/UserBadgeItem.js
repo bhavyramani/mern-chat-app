@@ -1,6 +1,7 @@
 import { Badge, Text } from "@chakra-ui/react";
 import { CloseButton } from "@chakra-ui/react";
 
+// User badge used in create group to show selected users to be added in group
 const UserBadgeItem = ({ user, handleFunction, admin }) => {
   return (
     <Badge

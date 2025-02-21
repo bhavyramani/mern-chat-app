@@ -4,6 +4,7 @@ import { Box, Avatar, Text } from '@chakra-ui/react';
 import { ChatState } from '../../context/ChatProvider';
 import { getUserStatus } from '../../config/chatLogics';
 
+// User card containing their information
 const UserListItem = ({ user, handler, status }) => {
     const { selectedChat } = ChatState();
     return (

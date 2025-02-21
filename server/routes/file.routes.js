@@ -6,11 +6,13 @@ const router = express.Router();
 
 const mongoURI = process.env.MONGO_URI;
 
+// Create a connection to the MongoDB database for gridfs
 const conn = mongoose.createConnection(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
 
+// Initialize GridFSBucket
 let gridfsBucket;
 conn.once('open', () => {
     gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
@@ -22,12 +24,13 @@ conn.once('open', () => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Upload file
 router.post('/upload', authMiddleware, upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Generate custom filename: timestamp + userId + original filename
+    // Generate custom filename: timestamp + userId + original filename to avoid conflicts
     const customFilename = `${Date.now()}_${req.user._id}_${req.file.originalname}`;
 
     const uploadStream = gridfsBucket.openUploadStream(customFilename, {
@@ -50,7 +53,7 @@ router.post('/upload', authMiddleware, upload.single('file'), (req, res) => {
     });
 });
 
-
+// Download file
 router.get('/download/:filename', async (req, res) => {
     try {
         const file = await conn.db.collection('uploads.files').findOne({ filename: req.params.filename });

@@ -23,25 +23,27 @@ let selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setfetchAgain }) => {
     const { user, selectedChat, setSelectedChat } = ChatState();
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState("");
-    const [messageLoading, setMessageLoading] = useState(false);
-    const [socketConnected, setSocketConnected] = useState(false);
-    const [isTyping, setIsTyping] = useState(false);
-    const [typing, setTyping] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(null);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [messages, setMessages] = useState([]);                        // List of message
+    const [newMessage, setNewMessage] = useState("");                    // Message in input
+    const [messageLoading, setMessageLoading] = useState(false);         // Loading messages
+    const [socketConnected, setSocketConnected] = useState(false);       // Socket connection
+    const [isTyping, setIsTyping] = useState(false);                     // Typing status of other user
+    const [typing, setTyping] = useState(false);                         // Typing status of current user
+    const [currentPage, setCurrentPage] = useState(1);                   // Current page of messages. 1 means latest
+    const [totalPages, setTotalPages] = useState(null);                  // Total pages of messages for pagination logic
+    const [selectedFile, setSelectedFile] = useState(null);              // Selected file for upload
 
     // Use refs to hold current page values for socket callback
     const currentPageRef = useRef(currentPage);
     const totalPagesRef = useRef(totalPages);
 
+    // Show messages of current page only
     useEffect(() => {
         currentPageRef.current = currentPage;
         totalPagesRef.current = totalPages;
     }, [currentPage, totalPages]);
 
+    // Socket setup
     useEffect(() => {
         if (socket === null) {
             socket = io(ENDPOINT);
@@ -52,10 +54,12 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     }, [user]);
 
+    // Function to upload file 
     const handleFileUpload = async () => {
         const file = selectedFile;
         if (!file) return;
 
+        // Form data supoorts file upload
         const formData = new FormData();
         formData.append("file", file);
 
@@ -71,14 +75,14 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
             sendFileMessage(data.filename, file);
         } catch (error) {
             toast.error("File upload failed");
-        }finally{
+        } finally {
             setNewMessage("");
             setSelectedFile(null);
         }
     };
 
+    // Function to send file message after successfull upload of file
     const sendFileMessage = async (filename, file) => {
-        console.log(filename, file);
         try {
             const config = {
                 headers: {
@@ -89,7 +93,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
 
             const { data } = await axios.post('/api/message', {
                 file: filename,
-                content: file.name,   
+                content: file.name,
                 chatId: selectedChat._id
             }, config);
 
@@ -100,9 +104,10 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     };
 
+    // Function to send message
     const sendMessage = async () => {
         if (!newMessage) return;
-        if(selectedFile !== null){
+        if (selectedFile !== null) {
             setNewMessage('(File Selected)')
             handleFileUpload();
             return;
@@ -121,6 +126,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                 chatId: selectedChat._id
             }, config);
             socket.emit("new message", data);
+
             // Append new message only if we are on page 1 (newest messages)
             if (currentPageRef.current === 1) {
                 setMessages(prev => [...prev, data]);
@@ -130,17 +136,20 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     };
 
+    // Send typing event to socket for to let other user know for typing indicator
     const handleTyping = (e) => {
         setNewMessage(e.target.value);
         if (!socketConnected) return;
         if (!typing) {
             setTyping(true);
             socket.emit('typing', selectedChat._id);
+            // emit typing event if user is pressing keys
         }
         const lastTypingTime = new Date().getTime();
         const timerLength = 3000;
         setTimeout(() => {
             const timeNow = new Date().getTime();
+            // If no key is pressed for 3 seconds then send stop typing event to socket
             if (timeNow - lastTypingTime >= timerLength && typing) {
                 socket.emit('stop typing', selectedChat._id);
                 setTyping(false);
@@ -148,6 +157,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }, timerLength);
     };
 
+    // Fetch messages of current page
     const fetchMessagesForPage = async (page, direction = 'initial') => {
         if (!selectedChat) return;
         try {
@@ -173,6 +183,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     };
 
+    // Init use effect
     useEffect(() => {
         if (selectedChat) {
             setMessages([]);
@@ -183,6 +194,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         }
     }, [selectedChat]);
 
+    // Event handler if new message arrives
     useEffect(() => {
         const messageHandler = (newMessageRecived) => {
             if (!selectedChatCompare || selectedChatCompare._id !== newMessageRecived.chat._id) {
@@ -199,6 +211,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         };
     }, []);
 
+    // Send heartbeat to socket for online status some interval (defined in env variable)
     useEffect(() => {
         const sendHeartbeat = () => {
             if (socket && user) {
@@ -210,13 +223,14 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         return () => clearInterval(interval);
     }, [socket, user]);
 
+    // Move to previous page (load older messages)
     const handlePrev = () => {
         if (currentPage < totalPages) {
             fetchMessagesForPage(currentPage + 1, 'prev');
         }
     };
 
-    // "Next" button: load newer messages (decrement page number)
+    // Move to next page (load newer messages)
     const handleNext = () => {
         if (currentPage > 1) {
             fetchMessagesForPage(currentPage - 1, 'next');
@@ -237,19 +251,24 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                         justifyContent={{ base: "space-between" }}
                         alignItems="center"
                     >
+                        {/* Back Button for mobile view */}
                         <Button display={{ base: "flex", md: "none" }} size={'sm'} onClick={() => setSelectedChat("")}>
                             <IoMdArrowRoundBack />
                         </Button>
+
                         {selectedChat.groupChat
                             ? <Box>{selectedChat.chatName.toUpperCase()}</Box> :
                             <Box display="flex" alignItems="center" justifyContent={'space-between'} w={'100%'} px={10}>
                                 <Box ml={2}>{getSender(user, selectedChat.users)}</Box>
                                 <Box display={'flex'} h={'100%'} alignItems={'center'} gap={1} justifyContent={'center'} fontSize={'sm'}>
                                     <FaCircle height={'5px'} width={'5px'} color={getUserStatus(user, selectedChat.users) === 'Online' ? 'green' : 'gray'} />
-                                    {getUserStatus(user, selectedChat.users)}
+                                    {getUserStatus(user, selectedChat.users)} 
+                                    {/* Show user status in one-to-one chat */}
                                 </Box>
                             </Box>
                         }
+
+                        {/* Open group chat settings drawer */}
                         {selectedChat.groupChat && (
                             <GroupChatDrawer
                                 selectedChat={selectedChat}
@@ -260,6 +279,8 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                             />
                         )}
                     </Text>
+
+                    {/* Messages Section */}
                     <Box display="flex" flexDir="column" justifyContent="flex-end" p={3} bg="gray.600" w="100%" h="70vh" borderRadius="lg" overflowY="auto">
                         {messageLoading ? (
                             <Spinner size={'xl'} w={20} h={20} alignSelf={'center'} margin={'auto'} />
@@ -268,6 +289,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                 <ScrollChat messages={messages} />
                             </div>
                         )}
+                        {/* Typing indicator */}
                         {isTyping && (
                             <Lottie
                                 options={{
@@ -281,6 +303,8 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                 style={{ marginBottom: 15, marginLeft: 0 }}
                             />
                         )}
+
+                        {/* Input for message */}
                         <FormControl isRequired mt={3} display="flex" alignItems="center">
                             <Input
                                 onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
@@ -325,8 +349,8 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                     <MenuItem cursor={'pointer'} onClick={handlePrev} isDisabled={!currentPage || currentPage === totalPages}>Prev</MenuItem>
                                     <MenuItem cursor={'pointer'} onClick={handleNext} isDisabled={!currentPage || currentPage === 1}>Next</MenuItem>
                                     <MenuItem cursor={'pointer'}>
-                                        <Input type='file' id='file' display={'none'} w={'10px'} onChange={(e)=>{setSelectedFile(e.target.files[0]); setNewMessage('(File Selected)')}} />
-                                        <Text onClick={()=>{document.getElementById('file').click()}}>Upload File</Text>
+                                        <Input type='file' id='file' display={'none'} w={'10px'} onChange={(e) => { setSelectedFile(e.target.files[0]); setNewMessage('(File Selected)') }} />
+                                        <Text onClick={() => { document.getElementById('file').click() }}>Upload File</Text>
                                     </MenuItem>
                                 </MenuList>
                             </Menu>

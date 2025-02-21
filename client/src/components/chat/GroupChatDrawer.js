@@ -16,9 +16,8 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { IoSettingsSharp } from "react-icons/io5";
 import { IoExitOutline } from "react-icons/io5";
-import { ChatState } from '../../context/ChatProvider';
-import { getUserStatus } from '../../config/chatLogics';
 
+// Group settings drawer
 const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAgain, user }) => {
     const [open, setOpen] = useState(false);
     const [groupChatName, setGroupChatName] = useState("");
@@ -27,6 +26,7 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
     const [renameloading, setRenameLoading] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    // Rename group chat
     const handleRename = async () => {
         if (!groupChatName) return;
 
@@ -45,11 +45,14 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
             setfetchAgain(!fetchAgain);
         } catch (error) {
             toast.error("Only admins can rename!", { position: "top-right" });
+        } finally {
+            // Stop loading animations even if some error occurs
+            setRenameLoading(false);
+            setGroupChatName("");
         }
-        setRenameLoading(false);
-        setGroupChatName("");
     };
 
+    // Search users to add to group
     const handleSearch = async (query) => {
         setSearch(query);
         if (!query) return;
@@ -63,11 +66,14 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
             setSearchResult(data);
         } catch (error) {
             toast.error("Failed to load search results", { position: "top-right" });
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
+    // Add user to group
     const handleAddUser = async (user1) => {
+
         if (selectedChat.users.find((u) => u._id === user1._id)) {
             toast.warn("User already in group!", { position: "top-right" });
             return;
@@ -93,8 +99,10 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
             setfetchAgain(!fetchAgain);
         } catch (error) {
             toast.error("Error occurred", { position: "top-right" });
+        } finally {
+
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleRemove = async (user1) => {

@@ -1,7 +1,9 @@
+// Identify oppsite user in chat
 export const getSender = (loggedUser, users) => {
     return users[0]._id === loggedUser._id ? users[1].name : users[0].name;
 };
 
+// Get online/offline status of user
 export const getUserStatus = (loggedUser, users) => {
     const sender = users ? users.find(user => user._id !== loggedUser._id) : null;
 
@@ -28,6 +30,7 @@ export const getUserStatus = (loggedUser, users) => {
     }
 };
 
+// Check if previous user is same as current user
 export const isSameSender = (messages, m, i, userId) => {
     return (
         i < messages.length - 1 &&
@@ -37,6 +40,7 @@ export const isSameSender = (messages, m, i, userId) => {
     );
 };
 
+// Check if it is last message of sender
 export const isLastMessage = (messages, i, userId) => {
     return (
         i === messages.length - 1 &&
@@ -45,6 +49,7 @@ export const isLastMessage = (messages, i, userId) => {
     );
 };
 
+// Margin for loading image of sender
 export const isSameSenderMargin = (messages, m, i, userId) => {
     if (
         i < messages.length - 1 &&

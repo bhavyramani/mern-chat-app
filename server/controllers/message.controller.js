@@ -3,20 +3,22 @@ const Message = require("../models/message.model");
 const User = require("../models/user.model");
 const Chat = require("../models/chat.model");
 
+// Fetch messages by pagination
 const allMessages = errorHandler(async (req, res) => {
     try {
         const { chatId } = req.params;
-        let { page, limit = 20 } = req.query;
+        let { page, limit = 20 } = req.query; // Default limit to 20 messages
         limit = parseInt(limit);
         const totalMessages = await Message.countDocuments({ chat: chatId });
         const totalPages = Math.ceil(totalMessages / limit) || 1;
         if (!page) {
-            page = 1;
+            page = 1; // Default page to 1
         } else {
             page = parseInt(page);
         }
         const skip = (page - 1) * limit;
         
+        // Sorted in descending order of createdAt to get the latest messages first
         const messages = await Message.find({ chat: chatId })
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -35,9 +37,10 @@ const allMessages = errorHandler(async (req, res) => {
     }
 });
 
+// Function to send message
 const sendMessage = errorHandler(async (req, res) => {
     const { content, chatId, file } = req.body;
-    console.log(req.body);
+    
     if (!content || !chatId) {
         console.log("Invalid data passed into request");
         return res.sendStatus(400);

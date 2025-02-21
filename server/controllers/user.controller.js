@@ -2,6 +2,7 @@ const errorHandler = require('express-async-handler');
 const User = require('../models/user.model');
 const { getToken } = require('../config/token');
 
+// Register new user
 const registerUser = errorHandler(async (req, res) => {
     const { name, email, password } = req.body;
     const profile = req.file.filename;
@@ -40,6 +41,7 @@ const registerUser = errorHandler(async (req, res) => {
     }
 });
 
+// Authenticate user
 const authUser = errorHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -59,6 +61,7 @@ const authUser = errorHandler(async (req, res) => {
     }
 });
 
+// Get all users matching search query
 const allUsers = errorHandler(async (req, res) => {
     const query = req.query.search;
     if (!query) {
@@ -74,7 +77,5 @@ const allUsers = errorHandler(async (req, res) => {
     }, { _id: 1, name: 1, email: 1 }).find({ _id: { $ne: req.user._id } });
     res.send(users);
 });
-
-// const 
 
 module.exports = { registerUser, authUser, allUsers };

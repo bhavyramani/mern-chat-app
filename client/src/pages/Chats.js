@@ -7,11 +7,8 @@ import ChatBox from '../components/chat/ChatBox';
 
 const Chats = () => {
   const { user } = ChatState();
-  const [fetchAgain, setfetchAgain] = useState(false);
-  const [initfetch, setInitfetch] = useState(0);
-  useEffect(() => {
-    // setInitfetch(1);
-  });
+  const [fetchAgain, setfetchAgain] = useState(false); // Fetch messages again for some events
+
   return (
     <div style={{ 'width': '100%' }}>
       {user ? <SearchBar /> : ""}
@@ -23,8 +20,10 @@ const Chats = () => {
         px={'30px'}
         py={'10px'}
       >
-        {user && <ChatList fetchAgain={fetchAgain} initfetch={initfetch} />}
-        {user && <ChatBox fetchAgain={fetchAgain} setfetchAgain={setfetchAgain}  />}
+        {/* List of chats */}
+        {user && <ChatList fetchAgain={fetchAgain} />}
+        {/* Chat box */}
+        {user && <ChatBox fetchAgain={fetchAgain} setfetchAgain={setfetchAgain} />}
       </Box>
     </div>
   )

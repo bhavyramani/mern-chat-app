@@ -5,7 +5,6 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
-
 const Signup = () => {
     const [name, setName] = useState();
     const [email, setEmail] = useState();
@@ -13,8 +12,8 @@ const Signup = () => {
     const [confirmPassword, setConfirmPassword] = useState();
     const [profile, setProfile] = useState();
     const [loading, setLoading] = useState(false);
-    const history = useHistory();
 
+    // Signup handler
     const handleSubmit = async () => {
         setLoading(true);
         if (!name || !email || !password || !confirmPassword) {
@@ -46,6 +45,7 @@ const Signup = () => {
                 },
             };
 
+            // form data to support image file in form
             const formData = new FormData();
             formData.append("profile", profile);
             formData.append("name", name);
@@ -62,14 +62,14 @@ const Signup = () => {
                 autoClose: 5000,
             });
 
-            localStorage.setItem("userInfo", JSON.stringify(data));
-            window.location.reload();
+            localStorage.setItem("userInfo", JSON.stringify(data)); // Store user info in local storage for bearer token
+            window.location.reload(); // User will be redirected to /chats due to chat context
         } catch (error) {
             toast.error(`Error: ${error.response?.data?.message || "Something went wrong!"}`, {
                 position: "top-right",
                 autoClose: 5000,
             });
-        } finally{
+        } finally {
             setLoading(false);
         }
     };

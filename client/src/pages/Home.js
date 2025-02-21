@@ -7,12 +7,14 @@ import { useHistory } from 'react-router-dom';
 const Home = () => {
     const [value, setValue] = useState("login");
     const history = useHistory();
+
+    // Redirect to chats if user is already logged in
     useEffect(() => {
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-        if(userInfo) 
+        if (userInfo)
             history.push("/chats");
     }
-    , [history]);
+        , [history]);
     return (
         <Container zIndex={2} maxW='xl' centerContent>
             <Box
@@ -28,7 +30,7 @@ const Home = () => {
             >
                 <Text fontSize={'2xl'}>Chat App</Text>
             </Box>
-
+            {/* Basic signup and login form */}
             <Box
                 bg={'gray.900'}
                 w={'100%'}

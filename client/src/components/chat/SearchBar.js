@@ -5,12 +5,10 @@ import { Avatar } from '@chakra-ui/react';
 import { ChatState } from '../../context/ChatProvider';
 import { useHistory } from 'react-router-dom';
 import {
-  DrawerActionTrigger,
   DrawerBackdrop,
   DrawerBody,
   DrawerCloseTrigger,
   DrawerContent,
-  DrawerFooter,
   DrawerHeader,
   DrawerRoot,
   DrawerTitle,
@@ -21,6 +19,7 @@ import axios from 'axios';
 import UserListItem from '../UserCard/UserListItem';
 import { IoSearchOutline } from "react-icons/io5";
 
+// Left side search bar
 const SearchBar = () => {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -30,11 +29,13 @@ const SearchBar = () => {
   const [open, setOpen] = useState(false)
   const history = useHistory();
 
+  // Logout handler
   const handleLogout = () => {
     localStorage.removeItem("userInfo");
     history.push('/')
   };
 
+  // Search for users
   const handleSearch = async () => {
     if (!search) {
       toast.warn("Please enter something in search", {
@@ -72,6 +73,7 @@ const SearchBar = () => {
     }
   };
 
+  // Access chat when user clicks on it
   const accessChat = async (userId) => {
     try {
       setLoadingChat(true);
@@ -151,11 +153,13 @@ const SearchBar = () => {
           </DrawerContent>
         </DrawerRoot>
         <Text fontSize={'2xl'} >Chat App</Text>
+
+        {/* User Profile Menu */}
         <Menu>
           <MenuButton as={Button} p={'1px'} >
             <Avatar.Root>
               <Avatar.Fallback name={user.name} />
-              <Avatar.Image src={`${process.env.REACT_APP_BACKEND}/uploads/${user.profile}`}/>
+              <Avatar.Image src={`${process.env.REACT_APP_BACKEND}/uploads/${user.profile}`} />
             </Avatar.Root>
           </MenuButton>
           <MenuList zIndex={500} bg={'black'} p={'3px'}>

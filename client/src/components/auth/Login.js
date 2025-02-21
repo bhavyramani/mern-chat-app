@@ -9,7 +9,8 @@ const Login = () => {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [loading, setLoading] = useState(false);
-    const history = useHistory();
+
+    // Handler to login
     const handleLogin = async () => {
         setLoading(true);
         if (!email || !password) {
@@ -44,7 +45,7 @@ const Login = () => {
                 autoClose: 5000,
             });
             setLoading(false);
-            window.location.reload();
+            window.location.reload(); // User will be redirected to /chats due to chat context
         } catch (error) {
             toast.error(`Error: ${error.response?.data?.message || "Something went wrong!"}`, {
                 position: "top-right",

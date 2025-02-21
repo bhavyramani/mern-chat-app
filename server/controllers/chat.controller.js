@@ -2,6 +2,7 @@ const errorHandler = require('express-async-handler');
 const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
 
+// Load selcted Chat
 const accessChat = errorHandler(async (req, res) => {
     const { userId } = req.body;
 
@@ -10,6 +11,7 @@ const accessChat = errorHandler(async (req, res) => {
         return res.sendStatus(400);
     }
 
+    // Allow access only if it is made by same user
     let isChat = await Chat.find({
         groupChat: false,
         $and: [
@@ -18,6 +20,7 @@ const accessChat = errorHandler(async (req, res) => {
         ],
     }).populate("users", "-password").populate("lastMessage");
 
+    // If chat alrady exist then return it Otherwise first create chat then return.
     isChat = await User.populate(isChat, {
         path: "lastMessage.sender",
         select: "name profile email",
@@ -44,6 +47,7 @@ const accessChat = errorHandler(async (req, res) => {
     }
 });
 
+// Fetch all chats of users
 const fetchChats = errorHandler(async (req, res) => {
     try {
         let results = await Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
@@ -62,6 +66,7 @@ const fetchChats = errorHandler(async (req, res) => {
     }
 });
 
+// Create a group chat
 const createGroupChat = errorHandler(async (req, res) => {
     if (!req.body.users || !req.body.name) {
         return res.status(400).send({ message: "Please Fill all the feilds" });
@@ -69,6 +74,7 @@ const createGroupChat = errorHandler(async (req, res) => {
 
     let users = JSON.parse(req.body.users);
 
+    // At least 2 users should be there in group
     if (users.length < 2) {
         return res
             .status(400)
@@ -96,6 +102,7 @@ const createGroupChat = errorHandler(async (req, res) => {
     }
 });
 
+// Rename group title
 const renameGroup = errorHandler(async (req, res) => {
     const { chatId, chatName } = req.body;
     const updatedChat = await Chat.findByIdAndUpdate(
@@ -118,6 +125,7 @@ const renameGroup = errorHandler(async (req, res) => {
     }
 });
 
+// Add user to group
 const addToGroup = errorHandler(async (req, res) => {
     const { chatId, userId } = req.body;
 
@@ -128,6 +136,7 @@ const addToGroup = errorHandler(async (req, res) => {
         throw new Error("Chat Not Found");
     }
 
+    // DO not allow more than 100 users in group
     if (chat.users.length >= 100) {
         res.status(400);
         throw new Error("Group chat user limit (100) reached.");
@@ -148,6 +157,7 @@ const addToGroup = errorHandler(async (req, res) => {
     res.json(added);
 });
 
+// Remove user from group
 const removeFromGroup = errorHandler(async (req, res) => {
     const { chatId, userId } = req.body;
 

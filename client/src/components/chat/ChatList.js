@@ -5,12 +5,12 @@ import axios from 'axios';
 import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { getSender } from '../../config/chatLogics';
 import GroupChatPopup from './GroupChatPopup';
-import { useHistory } from 'react-router-dom';
 
 const ChatList = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
-  const history = useHistory();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
+
+  // Fetch current user's all chats
   const fetchChats = async () => {
     try {
       const config = {
@@ -31,10 +31,12 @@ const ChatList = ({ fetchAgain }) => {
       });
     }
   };
+
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
   }, [fetchAgain]);
+
   return (
     <Box
       display={{ base: selectedChat ? "none" : "flex", md: "flex" }}

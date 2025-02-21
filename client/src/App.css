@@ -13,37 +13,52 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.background {
+  position: absolute; 
+  top: 0;
+  z-index: -100;
+  height: 100vh;
+  width: 100vw;
+  background-color: #000000;
+  background-image: radial-gradient(#ffffff33 1px, #00091d 1px);
+  background-size: 20px 20px;
+  pointer-events: none; 
 }
+
 
 .App-link {
   color: #61dafb;
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   width: 0;
 }
 
-::-webkit-scrollbar-thumb{
+::-webkit-scrollbar-thumb {
   background: rgba(136, 136, 136, 0.281);
 }
 
-::-webkit-scrollbar-thumb:hover{
+::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.background {
+  position: absolute;
+  top: 0;
+  z-index: -2;
+  height: 100vh;
+  width: 100vw;
+  background-color: #000000;
+  background-image: radial-gradient(#ffffff33 1px, #00091d 1px);
+  background-size: 20px 20px;
+}
+
 
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

@@ -4,7 +4,7 @@ import { Box, Avatar, Text } from '@chakra-ui/react';
 import { ChatState } from '../../context/ChatProvider';
 import { getUserStatus } from '../../config/chatLogics';
 
-const UserListItem = ({ user, handler }) => {
+const UserListItem = ({ user, handler, status }) => {
     const { selectedChat } = ChatState();
     return (
         <Box
@@ -45,7 +45,7 @@ const UserListItem = ({ user, handler }) => {
                     </Text>
                 </Box>
             </Box>
-            <FaCircle height={1} width={1} color={getUserStatus(user, selectedChat.users) === 'Online' ? 'green' : 'gray'} />
+            {status && <FaCircle height={1} width={1} color={getUserStatus(user, selectedChat.users) === 'Online' ? 'green' : 'gray'} />}
         </Box>
     )
 }

@@ -44,7 +44,7 @@ const Login = () => {
                 autoClose: 5000,
             });
             setLoading(false);
-            history.push("/chats");
+            window.location.reload();
         } catch (error) {
             toast.error(`Error: ${error.response?.data?.message || "Something went wrong!"}`, {
                 position: "top-right",

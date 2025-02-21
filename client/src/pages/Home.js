@@ -14,22 +14,23 @@ const Home = () => {
     }
     , [history]);
     return (
-        <Container maxW='xl' centerContent>
+        <Container zIndex={2} maxW='xl' centerContent>
             <Box
                 display={'flex'}
                 justifyContent={'center'}
                 p={4}
-                bg={'gray.800'}
+                bg={'gray.900'}
                 w={'100%'}
                 m={'40px 0 15px 0'}
                 borderRadius={'lg'}
                 borderWidth={'1px'}
+                fontWeight={'bold'}
             >
                 <Text fontSize={'2xl'}>Chat App</Text>
             </Box>
 
             <Box
-                bg={'gray.800'}
+                bg={'gray.900'}
                 w={'100%'}
                 p={4}
                 borderRadius={'lg'}

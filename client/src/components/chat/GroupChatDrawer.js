@@ -156,7 +156,7 @@ const GroupChatDrawer = ({ selectedChat, setSelectedChat, fetchAgain, setfetchAg
                             <UserListItem
                                 key={u._id}
                                 user={u}
-                                status={getUserStatus(u, selectedChat.users)}
+                                status={true}
                                 handler={() => handleRemove(u)}
                             />
                         ))}

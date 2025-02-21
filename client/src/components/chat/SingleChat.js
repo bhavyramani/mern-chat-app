@@ -187,6 +187,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
         const messageHandler = (newMessageRecived) => {
             if (!selectedChatCompare || selectedChatCompare._id !== newMessageRecived.chat._id) {
                 // Optionally handle notifications for new messages in other chats.
+                setfetchAgain(prev => !prev);
             } else if (currentPageRef.current === 1) {  // Only render if on page 1 (newest)
                 setMessages(prev => [...prev, newMessageRecived]);
                 setfetchAgain(prev => !prev);
@@ -275,8 +276,8 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
                                     animationData: animationData,
                                     rendererSettings: { preserveAspectRatio: "xMidYmid slice" }
                                 }}
-                                width={50}
-                                height={20}
+                                width={'50px'}
+                                height={'20px'}
                                 style={{ marginBottom: 15, marginLeft: 0 }}
                             />
                         )}

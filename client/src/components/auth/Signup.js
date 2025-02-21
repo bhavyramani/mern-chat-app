@@ -63,7 +63,7 @@ const Signup = () => {
             });
 
             localStorage.setItem("userInfo", JSON.stringify(data));
-            history.push("/chats");
+            window.location.reload();
         } catch (error) {
             toast.error(`Error: ${error.response?.data?.message || "Something went wrong!"}`, {
                 position: "top-right",
